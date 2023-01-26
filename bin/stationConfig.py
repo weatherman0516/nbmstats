@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-dateRange = ("20230117", "20230122")
-
 dataDir = "/home/weatherman0516/nbmstats/data/"
 
 stations = {"LKWF1":{"model":dataDir+"LKWF1.json",
@@ -33,6 +31,21 @@ stations = {"LKWF1":{"model":dataDir+"LKWF1.json",
                     "ob":dataDir+"KYWF1_obs.json",
                     "bias":dataDir+"KYWF1_bias.json",
                     "elev":15.0 #in m
+                    },
+            "SMKF1":{"model":dataDir+"SMKF1.json",
+                    "ob":dataDir+"SMKF1_obs.json",
+                    "bias":dataDir+"SMKF1_bias.json",
+                    "elev":7.2 #in m
+                    },
+            "VCAF1":{"model":dataDir+"VCAF1.json",
+                    "ob":dataDir+"VCAF1_obs.json",
+                    "bias":dataDir+"VCAF1_bias.json",
+                    "elev":6.5 #in m
+                    },
+            "LONF1":{"model":dataDir+"LONF1.json",
+                    "ob":dataDir+"LONF1_obs.json",
+                    "bias":dataDir+"LONF1_bias.json",
+                    "elev":6.34 #in m
                     },
             }
 

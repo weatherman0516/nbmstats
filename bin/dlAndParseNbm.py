@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 
 import stationConfig
-import re, json, urllib.request, os
+import re, json, urllib.request, os, sys
 from datetime import datetime, timedelta
 
 class BulletinDecoder:
     def __init__(self):
         self.bulletinDict = stationConfig.bulletinDict
-        self.dateRange = stationConfig.dateRange
+        # self.dateRange = stationConfig.dateRange
+        self.dateRange = (str(sys.argv[1]),str(sys.argv[2]))
         self.hours = stationConfig.hours
         self.stations = stationConfig.stations
         self.orgData = {}

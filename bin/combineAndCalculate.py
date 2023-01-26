@@ -34,6 +34,8 @@ class DataCombineAndCalc:
                     if self.modelDict[eachCyc][eachFhr][eachParm]["date"] in list(self.obDict.keys()):
                         combinedDict[eachCyc][eachFhr][eachParm]["ob"] = self.obDict[self.modelDict[eachCyc][eachFhr][eachParm]["date"]][eachParm]
                         eachBias = combinedDict[eachCyc][eachFhr][eachParm]["model"] - self.obDict[self.modelDict[eachCyc][eachFhr][eachParm]["date"]][eachParm]
+                        if math.isnan(eachBias):
+                            eachBias = "null"
                         combinedDict[eachCyc][eachFhr][eachParm]["bias"] = eachBias
         return combinedDict
 
