@@ -76,6 +76,9 @@ class DataCombineAndCalc:
                             combinedDict[eachCyc][eachFhr][eachParm]["ob"] = self.obDict[self.modelDict[eachCyc][eachFhr][eachParm]["date"]][eachParm]
                             eachBias = combinedDict[eachCyc][eachFhr][eachParm]["model"] - self.obDict[self.modelDict[eachCyc][eachFhr][eachParm]["date"]][eachParm]
                         combinedDict[eachCyc][eachFhr][eachParm]["bias"] = eachBias
+                    else:
+                        combinedDict[eachCyc][eachFhr][eachParm]["ob"] = "null"
+                        combinedDict[eachCyc][eachFhr][eachParm]["bias"] = "null"
         return combinedDict
 
     def calcQPF24(self,eachCyc,eachFhr,eachParm):

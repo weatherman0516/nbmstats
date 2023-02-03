@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import stationConfig
-import re, json, urllib.request, os, gzip, math, sys
+import re, json, urllib.request, os, gzip, math, sys, copy
 from datetime import datetime, timedelta, date
 
 class ObGetter:
@@ -23,10 +23,20 @@ class ObGetter:
                 self.storeObsMarine()
                 self.writeData()
             else:
-                self.stationIdNum,self.wban,tmpFile = self.stnIdLookup()
-                self.fileLookupsLand()
-                self.storeObsLand()
-                self.writeData()
+                retDict = self.stnIdLookup()
+                for dictIdx, self.stationIdNum in enumerate(retDict["stnNum"]):
+                    try:
+                        self.wban = retDict["wban"][dictIdx]
+                        tmpFile = retDict["destFile"][dictIdx]
+                        errCheck = self.fileLookupsLand()
+                        if errCheck is None:
+                            raise Exception("Error obtaining obs data. Checking other station ids if available...")
+                        self.storeObsLand()
+                        self.maxMinObs()
+                        self.writeData()
+                        break
+                    except:
+                        continue
         sys.stdout.write("\033[1;32m( {:s} ) - Complete!\033[0;0m\n".format(datetime.utcnow().strftime("%H:%M:%S")))
         os.remove(tmpFile)
 
@@ -62,6 +72,7 @@ class ObGetter:
 
     def stnIdLookup(self):
         print("( {:s} ) - Retrieving station id from NCEI".format(datetime.utcnow().strftime("%H:%M:%S")))
+        retDict = {"stnNum":[],"wban":[],"destFile":[]}
         lookupUrl = "https://www.ncei.noaa.gov/pub/data/noaa/isd-history.txt"
         opener = urllib.request.build_opener()
         urllib.request.install_opener(opener)
@@ -77,7 +88,10 @@ class ObGetter:
                 stnNum = row[0:6].replace(" ","")
                 wban = row[7:12].replace(" ","")
                 if stnNum != '999999':
-                    return stnNum,wban,destFile
+                    retDict["stnNum"].append(stnNum)
+                    retDict["wban"].append(wban)
+                    retDict["destFile"].append(destFile)
+        return retDict
 
     # Attach year or something to temp stored file
     def fileLookupsMarine(self):
@@ -125,17 +139,23 @@ class ObGetter:
         uniqueYears = [*set(allYears)]
         for eachYear in uniqueYears:
             fullUrl = urlPrefix + str(eachYear) + "/" + self.stationIdNum + "-" + self.wban + "-" + str(eachYear) + ".gz"
-            self.fileDL(fullUrl,"primary","gz")
+            errCheck = self.fileDL(fullUrl,"primary","gz")
+        return errCheck
 
     def fileDL(self,fileUrl,urlKey,ext):
-        print("( {:s} ) - Selected URL is: {:s}".format(datetime.utcnow().strftime("%H:%M:%S"),fileUrl))
         opener = urllib.request.build_opener()
         urllib.request.install_opener(opener)
         stnFile = self.stn + "." + ext
         destFile = os.path.join(self.dataDir,stnFile)
         if not os.path.isfile(destFile):
-            urllib.request.urlretrieve(fileUrl,destFile)
-            self.destFiles[urlKey] = destFile
+            try:
+                x,y = urllib.request.urlretrieve(fileUrl,destFile)
+                self.destFiles[urlKey] = destFile
+                print("\033[1;32m( {:s} ) - Download succeded for: {:s}\033[0;0m".format(datetime.utcnow().strftime("%H:%M:%S"),fileUrl))
+                return x
+            except:
+                print("\033[1;31m( {:s} ) - Download failed for: {:s} trying a different file (if available).\033[0;0m".format(datetime.utcnow().strftime("%H:%M:%S"),fileUrl))
+                return None
 
     def storeObsMarine(self):
         print("( {:s} ) - Parsing obs file and storing to dictionary.".format(datetime.utcnow().strftime("%H:%M:%S")))
@@ -201,6 +221,9 @@ class ObGetter:
                         # mm -> in
                         if int(obRow[parmLocDict[eachParm]["start"]:parmLocDict[eachParm]["stop"]]) == -9999:
                             convVal = "null"
+                        # -1 is equivalent to Trace in the isd file.
+                        elif int(obRow[parmLocDict[eachParm]["start"]:parmLocDict[eachParm]["stop"]]) == -1:
+                            convVal = 0.0
                         else:
                             convVal = round((int(obRow[parmLocDict[eachParm]["start"]:parmLocDict[eachParm]["stop"]])/10) * 0.0393701,2)
                     elif eachParm in ["q24"]:
@@ -208,6 +231,57 @@ class ObGetter:
                         convVal = "null"
                     self.obDict[str(dateKey)][eachParm] = convVal
         os.remove(self.destFiles["primary"])
+
+    def maxMinObs(self):
+        print("( {:s} ) - Getting observed Max/Min temps from CLI data.".format(datetime.utcnow().strftime("%H:%M:%S")))
+        # http://mesonet.agron.iastate.edu/json/cli.py?station=KDSM&year=2019&fmt=json
+        # loop through dates (keys) in obdict
+        ## NBM logs minT forecasts at 12z and maxT at 00z.
+        ### place min/max obs at those respective times
+        jsonYear = None
+        jsonPre = "http://mesonet.agron.iastate.edu/json/cli.py?station="+self.stn+"&year="
+        for obDate in self.obDict:
+            dtObj = datetime.strptime(obDate,"%Y-%m-%d %H:%M:%S")
+            if dtObj.hour == 12:
+                #day of is fine
+                yearToGrab = str(dtObj.year)
+                if yearToGrab != jsonYear:
+                    # get the new data
+                    jsonYear = copy.deepcopy(yearToGrab)
+                    fullUrl = jsonPre + yearToGrab + "&fmt=json"
+                    dlIt = True
+                else:
+                    dlIt = False
+                temp = self.readAndScrapeJson(fullUrl,"low",dlIt,dtObj)
+                self.obDict[obDate]["txn"] = temp
+            elif dtObj.hour == 0:
+                # prev day since 00z
+                prevDay = dtObj - timedelta(days=1)
+                yearToGrab = str(prevDay.year)
+                if yearToGrab != jsonYear:
+                    # get the new data
+                    jsonYear = copy.deepcopy(yearToGrab)
+                    fullUrl = jsonPre + yearToGrab + "&fmt=json"
+                    dlIt = True
+                else:
+                    dlIt = False
+                temp = self.readAndScrapeJson(fullUrl,"high",dlIt,prevDay)
+                self.obDict[obDate]["txn"] = temp
+            else:
+                self.obDict[obDate]["txn"] = "null"
+        return
+
+    def readAndScrapeJson(self,fullUrl,highLow,dlIt,dtObj):
+        if dlIt:
+            response = urllib.request.urlopen(fullUrl)
+            self.cliJson = json.loads(response.read())
+        ymd = dtObj.strftime("%Y-%m-%d")
+        val = "null"
+        for dailyEntry in self.cliJson["results"]:
+            if dailyEntry["valid"] == ymd:
+                val = dailyEntry[highLow]
+                break
+        return val
 
     def logWindAdj(self, spd):
         if self.windAdjMethod == "ndbc":

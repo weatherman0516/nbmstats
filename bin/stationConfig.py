@@ -29,21 +29,30 @@ stations = {
             #         "elev":6.0, #in m
             #         "type":"marine" #or land
             #         },
-            # "KMIA":{"model":dataDir+"KMIA.json",
-            #         "ob":dataDir+"KMIA_obs.json",
-            #         "paired":dataDir+"KMIA_paired.json",
-            #         "bias":dataDir+"KMIA_bias.json",
-            #         "conditional":dataDir+"KMIA_condl.json",
-            #         "conditionalFalse":dataDir+"KMIA_condlFalse.json",
-            #         "elev":10.0, #in m
-            #         "type":"land" #or marine
-            #         },
-            "KTLH":{"model":dataDir+"KTLH.json",
-                    "ob":dataDir+"KTLH_obs.json",
-                    "paired":dataDir+"KTLH_paired.json",
-                    "bias":dataDir+"KTLH_bias.json",
-                    "conditional":dataDir+"KTLH_condl.json",
-                    "conditionalFalse":dataDir+"KTLH_condlFalse.json",
+            "KMIA":{"model":dataDir+"KMIA.json",
+                    "ob":dataDir+"KMIA_obs.json",
+                    "paired":dataDir+"KMIA_paired.json",
+                    "bias":dataDir+"KMIA_bias.json",
+                    "conditional":dataDir+"KMIA_condl.json",
+                    "conditionalFalse":dataDir+"KMIA_condlFalse.json",
+                    "elev":10.0, #in m
+                    "type":"land" #or marine
+                    },
+            "KFLL":{"model":dataDir+"KFLL.json",
+                    "ob":dataDir+"KFLL_obs.json",
+                    "paired":dataDir+"KFLL_paired.json",
+                    "bias":dataDir+"KFLL_bias.json",
+                    "conditional":dataDir+"KFLL_condl.json",
+                    "conditionalFalse":dataDir+"KFLL_condlFalse.json",
+                    "elev":10.0, #in m
+                    "type":"land" #or marine
+                    },
+            "KPBI":{"model":dataDir+"KPBI.json",
+                    "ob":dataDir+"KPBI_obs.json",
+                    "paired":dataDir+"KPBI_paired.json",
+                    "bias":dataDir+"KPBI_bias.json",
+                    "conditional":dataDir+"KPBI_condl.json",
+                    "conditionalFalse":dataDir+"KPBI_condlFalse.json",
                     "elev":10.0, #in m
                     "type":"land" #or marine
                     },
