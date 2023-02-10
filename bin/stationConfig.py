@@ -9,50 +9,35 @@
 
 dataDir = "/home/weatherman0516/nbmstats/data/"
 
-## Set to True if you want to create a .json file with bias information
-## without any conditional filtering
-biasData = True
-## Set to True if you want to filter some of the bias data based on a
-## threshold of your choosing. Then choose the value and operator you'd
-## like for the filtering.
-conditionalData = True
-compOperator = "ge" # eq ne ge gt le lt
-compVal = 15.0
 
 stations = {
-            # "LKWF1":{"model":dataDir+"LKWF1.json",
-            #         "ob":dataDir+"LKWF1_obs.json",
-            #         "paired":dataDir+"LKWF1_paired.json",
-            #         "bias":dataDir+"LKWF1_bias.json",
-            #         "conditional":dataDir+"LKWF1_condl.json",
-            #         "conditionalFalse":dataDir+"LKWF1_condlFalse.json",
-            #         "elev":6.0, #in m
-            #         "type":"marine" #or land
+            "LKWF1":{"model":dataDir+"LKWF1.json",
+                    "ob":dataDir+"LKWF1_obs.json",
+                    "paired":dataDir+"LKWF1_paired.json",
+                    "elev":6.0, #in m
+                    "type":"marine" #or land
+                    },
+            # "KTLH":{"model":dataDir+"KTLH.json",
+            #         "ob":dataDir+"KTLH_obs.json",
+            #         "paired":dataDir+"KTLH_paired.json",
+            #         "elev":10.0, #in m
+            #         "type":"land" #or marine
             #         },
             "KMIA":{"model":dataDir+"KMIA.json",
                     "ob":dataDir+"KMIA_obs.json",
                     "paired":dataDir+"KMIA_paired.json",
-                    "bias":dataDir+"KMIA_bias.json",
-                    "conditional":dataDir+"KMIA_condl.json",
-                    "conditionalFalse":dataDir+"KMIA_condlFalse.json",
                     "elev":10.0, #in m
                     "type":"land" #or marine
                     },
             "KFLL":{"model":dataDir+"KFLL.json",
                     "ob":dataDir+"KFLL_obs.json",
                     "paired":dataDir+"KFLL_paired.json",
-                    "bias":dataDir+"KFLL_bias.json",
-                    "conditional":dataDir+"KFLL_condl.json",
-                    "conditionalFalse":dataDir+"KFLL_condlFalse.json",
                     "elev":10.0, #in m
                     "type":"land" #or marine
                     },
             "KPBI":{"model":dataDir+"KPBI.json",
                     "ob":dataDir+"KPBI_obs.json",
                     "paired":dataDir+"KPBI_paired.json",
-                    "bias":dataDir+"KPBI_bias.json",
-                    "conditional":dataDir+"KPBI_condl.json",
-                    "conditionalFalse":dataDir+"KPBI_condlFalse.json",
                     "elev":10.0, #in m
                     "type":"land" #or marine
                     },
@@ -64,14 +49,12 @@ stations = {
             #         "conditionalFalse":dataDir+"SPGF1_condlFalse.json",
             #         "elev":6.6 #in m
             #         },
-            # "VAKF1":{"model":dataDir+"VAKF1.json",
-            #         "ob":dataDir+"VAKF1_obs.json",
-            #         "paired":dataDir+"VAKF1_paired.json",
-            #         "bias":dataDir+"VAKF1_bias.json",
-            #         "conditional":dataDir+"VAKF1_condl.json",
-            #         "conditionalFalse":dataDir+"VAKF1_condlFalse.json",
-            #         "elev":10.2 #in m
-            #         },
+            "VAKF1":{"model":dataDir+"VAKF1.json",
+                    "ob":dataDir+"VAKF1_obs.json",
+                    "paired":dataDir+"VAKF1_paired.json",
+                    "elev":10.2, #in m
+                    "type":"marine"
+                    },
             # "41009":{"model":dataDir+"41009.json",
             #         "ob":dataDir+"41009_obs.json",
             #         "paired":dataDir+"41010_paired.json",

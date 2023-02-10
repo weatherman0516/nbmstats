@@ -1,18 +1,13 @@
 #!/usr/bin/env python3
 
 import stationConfig
-import json, os, math, copy, operator, sys
+import json, os, math, copy, sys
 from datetime import datetime, timedelta, date
 
 class DataCombineAndCalc:
     def __init__(self):
         self.dataDir = stationConfig.dataDir
         self.stations = stationConfig.stations
-        self.biasData = stationConfig.biasData
-        self.conditionalData = stationConfig.conditionalData
-        if self.conditionalData:
-            self.compOperator = stationConfig.compOperator
-            self.compVal = stationConfig.compVal
         self.iterateStations()
 
     def iterateStations(self):
@@ -24,17 +19,6 @@ class DataCombineAndCalc:
             self.combinedDict = self.combineDicts()
             print("( {:s} ) - Writing dictionary to file".format(datetime.utcnow().strftime("%H:%M:%S")))
             self.genericWrite("paired",self.combinedDict,"datetime")
-            print("( {:s} ) - Creating a dictionary with only bias data".format(datetime.utcnow().strftime("%H:%M:%S")))
-            self.fhrBias = self.parseBiasData()
-            if self.biasData:
-                print("( {:s} ) - Writing bias data to a file".format(datetime.utcnow().strftime("%H:%M:%S")))
-                self.genericWrite("bias",self.fhrBias,"number")
-            if self.conditionalData:
-                print("( {:s} ) - Creating dictionaries for conditional data".format(datetime.utcnow().strftime("%H:%M:%S")))
-                self.condlBias, self.condlBiasFalse = self.conditionalCompute()
-                print("( {:s} ) - Writing conditional data to a file".format(datetime.utcnow().strftime("%H:%M:%S"),))
-                self.genericWrite("conditional",self.condlBias,"number")
-                self.genericWrite("conditionalFalse",self.condlBiasFalse,"number")
         sys.stdout.write("\033[1;32m( {:s} ) - Complete!\033[0;0m\n".format(datetime.utcnow().strftime("%H:%M:%S")))
 
     def ingestModelDict(self):
@@ -95,52 +79,6 @@ class DataCombineAndCalc:
             except:
                 return "null"
         return qpf6Sum
-
-    def parseBiasData(self):
-        fhrDict = {}
-        for eachCyc in list(self.combinedDict.keys()):
-            for eachFhr in list(self.combinedDict[eachCyc].keys()):
-                if eachFhr not in fhrDict:
-                    fhrDict[eachFhr] = {}
-                for eachParm in list(self.combinedDict[eachCyc][eachFhr].keys()):
-                    if eachParm not in fhrDict[eachFhr]:
-                        fhrDict[eachFhr][eachParm] = []
-                    if "bias" in self.combinedDict[eachCyc][eachFhr][eachParm]:
-                        fhrDict[eachFhr][eachParm].append(self.combinedDict[eachCyc][eachFhr][eachParm]["bias"])
-        return fhrDict
-
-    def conditionalCompute(self):
-        condlDict = {}
-        condlDictFalse = {}
-        opDict = {
-            "eq":operator.eq,
-            "ne":operator.ne,
-            "gt":operator.gt,
-            "ge":operator.ge,
-            "lt":operator.lt,
-            "le":operator.le,
-            }
-        opFunc = opDict[self.compOperator]
-        for eachCyc in list(self.combinedDict.keys()):
-            for eachFhr in list(self.combinedDict[eachCyc].keys()):
-                if eachFhr not in condlDict:
-                    condlDict[eachFhr] = {}
-                if eachFhr not in condlDictFalse:
-                    condlDictFalse[eachFhr] = {}
-                for eachParm in list(self.combinedDict[eachCyc][eachFhr].keys()):
-                    if eachParm not in condlDict[eachFhr]:
-                        condlDict[eachFhr][eachParm] = []
-                    if eachParm not in condlDictFalse[eachFhr]:
-                        condlDictFalse[eachFhr][eachParm] = []
-                    if self.combinedDict[eachCyc][eachFhr][eachParm]["ob"] == "null":
-                        condlDict[eachFhr][eachParm].append("null")
-                        condlDictFalse[eachFhr][eachParm].append("null")
-                    else:
-                        if "bias" in self.combinedDict[eachCyc][eachFhr][eachParm] and opFunc(self.combinedDict[eachCyc][eachFhr][eachParm]["ob"], self.compVal):
-                            condlDict[eachFhr][eachParm].append(self.combinedDict[eachCyc][eachFhr][eachParm]["bias"])
-                        elif "bias" in self.combinedDict[eachCyc][eachFhr][eachParm] and not opFunc(self.combinedDict[eachCyc][eachFhr][eachParm]["ob"], self.compVal):
-                            condlDictFalse[eachFhr][eachParm].append(self.combinedDict[eachCyc][eachFhr][eachParm]["bias"])
-        return condlDict, condlDictFalse
 
     def genericWrite(self, fileKey, theDict, sortFmt):
         if sortFmt == "datetime":

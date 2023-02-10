@@ -7,7 +7,6 @@ from datetime import datetime, timedelta
 class BulletinDecoder:
     def __init__(self):
         self.bulletinDict = stationConfig.bulletinDict
-        # self.dateRange = stationConfig.dateRange
         self.dateRange = (str(sys.argv[1]),str(sys.argv[2]))
         self.hours = stationConfig.hours
         self.stations = stationConfig.stations
@@ -18,7 +17,11 @@ class BulletinDecoder:
 
     def makeDateList(self):
         dateList = []
-        startDate = datetime.strptime(self.dateRange[0],"%Y%m%d")
+        ## Because I thought about this after the fact...
+        ## The input date is likely to be the period of interest in comparing with obs.
+        ## Thus the ob date could come into view ~ 8 days prior to fhr 0 in the nbm.
+        ## So we'll start by getting NBM bulletins 8 days back from the original request date.
+        startDate = datetime.strptime(self.dateRange[0],"%Y%m%d") - timedelta(days=8)
         endDate = datetime.strptime(self.dateRange[1],"%Y%m%d")
         while startDate <= endDate:
             dateList.append(startDate.strftime("%Y%m%d"))

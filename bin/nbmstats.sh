@@ -9,5 +9,5 @@ fi
 SCRIPT_DIR=$(cd $(dirname "${BASH_SOURCE[0]}") && pwd)
 
 python ${SCRIPT_DIR}/dlAndParseNbm.py $1 $2
-python ${SCRIPT_DIR}/dlObData.py
+python ${SCRIPT_DIR}/dlObData.py $1 $2
 python ${SCRIPT_DIR}/combineAndCalculate.py

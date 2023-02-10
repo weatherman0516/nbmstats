@@ -8,6 +8,7 @@ class ObGetter:
     def __init__(self):
         self.dataDir = stationConfig.dataDir
         self.stations = stationConfig.stations
+        self.dateRange = (str(sys.argv[1]),str(sys.argv[2]))
         self.windAdjMethod = stationConfig.windAdjMethod
         self.iterateStations()
 
@@ -48,11 +49,14 @@ class ObGetter:
 
     def compileDataDates(self):
         print("( {:s} ) - Parsing dates available within model data file.".format(datetime.utcnow().strftime("%H:%M:%S")))
+        startDate = datetime.strptime(self.dateRange[0],"%Y%m%d")
+        endDate = datetime.strptime(self.dateRange[1],"%Y%m%d")
         dataDatesDupes = []
         parmSeeker = "wsp" # Just give any parm key from the model json file so we can get the dates.
         for cycleKey in list(self.modelDict.keys()):
             for fhr in list(self.modelDict[cycleKey].keys()):
-                dataDatesDupes.append(self.modelDict[cycleKey][fhr][parmSeeker]["date"])
+                if datetime.strptime(self.modelDict[cycleKey][fhr][parmSeeker]["date"],"%Y-%m-%d %H:%M:%S") >= startDate and datetime.strptime(self.modelDict[cycleKey][fhr][parmSeeker]["date"],"%Y-%m-%d %H:%M:%S") <= endDate:
+                    dataDatesDupes.append(self.modelDict[cycleKey][fhr][parmSeeker]["date"])
         # Crazy simple way to remove duplicates
         dataDates = [*set(dataDatesDupes)]
         dataDates.sort()
@@ -110,7 +114,7 @@ class ObGetter:
                 for urlKey in list(urlDict.keys()):
                     fileExt = urlDict[urlKey][len(urlDict[urlKey])-3:]
                     try:
-                        self.fileDL(fileUrl,urlKey,fileExt)
+                        self.fileDL(urlDict[urlKey],urlKey,fileExt)
                     except:
                         raise Exception("Date is within 45 days and a file for this station does not exist.")
             else:
